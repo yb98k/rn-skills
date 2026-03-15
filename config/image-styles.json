@@ -1,11 +1,23 @@
 {
   "图片生成配置": {
-    "api": "openai",
-    "model": "gpt-image-1",
-    "default_size": "1024x1536",
-    "cover_size": "1024x1536",
-    "quality": "high",
-    "count_per_post": 6
+    "provider": "dashscope",
+    "api_name": "通义万相",
+    "model": "wanx2.1-t2i-turbo",
+    "备选模型": {
+      "高质量": "wanx2.1-t2i-plus",
+      "快速": "wanx2.1-t2i-turbo"
+    },
+    "base_url": "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis",
+    "result_url": "https://dashscope.aliyuncs.com/api/v1/tasks/{task_id}",
+    "env_key": "DASHSCOPE_API_KEY",
+    "default_size": "1024*1536",
+    "cover_size": "1024*1536",
+    "count_per_post": 6,
+    "说明": "通义万相采用异步API：先提交任务获取task_id，再轮询获取结果。支持中文prompt，对新中式风格理解更佳。",
+    "价格参考": {
+      "wanx2.1-t2i-turbo": "约¥0.04/张",
+      "wanx2.1-t2i-plus": "约¥0.16/张"
+    }
   },
   "通用基础prompt": {
     "正面提示": "high fashion editorial photography, professional lighting, clean composition, aesthetic, visually stunning, high quality, 4K, detailed textures",
@@ -84,7 +96,8 @@
     "prompt_suffix": "detailed fashion photography, lifestyle shot, editorial quality"
   },
   "图片比例说明": {
-    "小红书推荐": "3:4 竖版（1024x1536）最适合小红书展示",
-    "备选": "1:1 方形（1024x1024）适合统一排版"
+    "小红书推荐": "3:4 竖版（1024*1536）最适合小红书展示",
+    "备选": "1:1 方形（1024*1024）适合统一排版",
+    "通义万相支持": ["1024*1024", "720*1280", "1280*720", "1024*1536"]
   }
 }

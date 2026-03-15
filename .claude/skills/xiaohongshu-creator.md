@@ -171,34 +171,69 @@ setting: {场景},
 - page_4: 场景互动（根据选题匹配动作）
 - page_5: 配饰或单品特写
 
-#### 4.3 调用 OpenAI API 生成图片
+#### 4.3 调用通义万相 API 生成图片
 
-使用 Bash 工具执行 curl 命令调用 OpenAI GPT Image API：
+通义万相采用**异步任务模式**，分两步完成：
+
+**第一步：提交生成任务**
+
+使用 Bash 工具执行 curl 命令提交图片生成任务：
 
 ```bash
-curl -s "https://api.openai.com/v1/images/generations" \
+curl -s "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Authorization: Bearer $DASHSCOPE_API_KEY" \
+  -H "X-DashScope-Async: enable" \
   -d '{
-    "model": "gpt-image-1",
-    "prompt": "{完整prompt}",
-    "n": 1,
-    "size": "1024x1536",
-    "quality": "high"
+    "model": "wanx2.1-t2i-turbo",
+    "input": {
+      "prompt": "{完整prompt，支持中文}"
+    },
+    "parameters": {
+      "size": "1024*1536",
+      "n": 1
+    }
   }'
 ```
 
+返回值中提取 `task_id`：
+```json
+{"output": {"task_id": "xxx", "task_status": "PENDING"}}
+```
+
+**第二步：轮询获取结果**
+
+```bash
+curl -s "https://dashscope.aliyuncs.com/api/v1/tasks/{task_id}" \
+  -H "Authorization: Bearer $DASHSCOPE_API_KEY"
+```
+
+轮询直到 `task_status` 为 `SUCCEEDED`，然后从 `output.results[0].url` 获取图片URL。
+
+建议轮询间隔：3秒，最大等待：60秒。
+
+**第三步：下载图片到本地**
+
+```bash
+curl -s -o "{输出路径}/{文件名}.png" "{图片URL}"
+```
+
 **重要：**
-- 确保环境变量 `OPENAI_API_KEY` 已设置
+- 确保环境变量 `DASHSCOPE_API_KEY` 已设置（阿里云百炼平台获取）
+- 通义万相支持中文 prompt，新中式/国风类主题建议使用中文描述以获得更好效果
+- 6张图片的提交任务可以并行执行，然后统一轮询结果
 - 如果 API 调用失败，输出错误信息并提示用户检查 API Key
-- 将返回的 base64 图片数据或 URL 保存为 PNG 文件
-- 6张图片可以并行生成以提高速度
+- 备选高质量模型：`wanx2.1-t2i-plus`（质量更高，约¥0.16/张）
+
+**Prompt 语言建议：**
+- 穿搭类内容：可用中英混合 prompt，如"时尚穿搭，modern Chinese style fashion, 新中式改良旗袍，elegant and sophisticated"
+- 新中式文化类：优先使用中文 prompt，如"新中式茶道穿搭，女性在中式茶室中品茶，穿着改良旗袍，竹林背景，水墨风格"
 
 #### 4.4 图片保存
 
-将图片保存到对应的输出目录：
-- 如果返回的是 URL：使用 `curl -o` 下载
-- 如果返回的是 base64：使用 `echo {base64} | base64 -d > file.png`
+将下载的图片保存到对应的输出目录：
+- 封面图：`cover.png`
+- 内页图：`page_1.png` ~ `page_5.png`
 
 ---
 
@@ -302,8 +337,8 @@ mkdir -p output/{YYYY-MM-DD}_{选题标题简称}/
 3. **原创性**：文案必须原创，不直接复制搜索结果
 4. **实用性**：穿搭建议要具体可操作，标注单品类型
 5. **互动性**：文案结尾必须有互动引导（提问、投票、征集等）
-6. **错误处理**：如果 OpenAI API 调用失败，跳过图片生成步骤，只保存文案，并在文案.md 中标注「图片待补充」
-7. **成本控制**：每次生成控制在12张图以内（2条笔记 x 6张），预计API成本约 $0.24-0.48
+6. **错误处理**：如果通义万相 API 调用失败，跳过图片生成步骤，只保存文案，并在文案.md 中标注「图片待补充」
+7. **成本控制**：每次生成控制在12张图以内（2条笔记 x 6张），使用 turbo 模型预计API成本约 ¥0.48（$0.07）；使用 plus 模型约 ¥1.92（$0.27）
 
 ---
 
@@ -330,5 +365,5 @@ mkdir -p output/{YYYY-MM-DD}_{选题标题简称}/
    - 第1条建议 {时间段1} 发布
    - 第2条建议 {时间段2} 发布
 
-💰 预计API成本：${金额}
+💰 预计API成本：¥{金额}（turbo模型约¥0.04/张）
 ```

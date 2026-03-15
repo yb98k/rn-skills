@@ -11,7 +11,7 @@ An automated Claude Code Skill for creating trending Xiaohongshu (Little Red Boo
 - **Trend Scouting** — Auto-collect trending topics from Xiaohongshu, Weibo, Douyin, Vogue, Pinterest & Instagram
 - **Topic Filtering** — Score and rank topics by relevance, popularity, and originality (with history dedup)
 - **Copywriting** — Generate viral-style captions using proven title formulas and engaging body templates
-- **AI Image Generation** — Produce 6 editorial-quality images per post via OpenAI GPT Image API
+- **AI Image Generation** — Produce 6 editorial-quality images per post via Alibaba Tongyi Wanxiang (通义万相) API
 - **Local Export** — Save everything (copy, images, metadata) to organized local folders
 
 ---
@@ -19,7 +19,7 @@ An automated Claude Code Skill for creating trending Xiaohongshu (Little Red Boo
 - **素材收集** — 自动从小红书、微博、抖音、Vogue、Pinterest、Instagram 收集热门趋势
 - **选题筛选** — 按赛道匹配度、热度、差异化评分排序（自动去重）
 - **文案生成** — 基于 7 类爆款标题公式 + 种草型正文模板生成文案
-- **AI 配图** — 通过 OpenAI GPT Image API 生成 6 张杂志级配图
+- **AI 配图** — 通过阿里云通义万相 API 生成 6 张杂志级配图（支持中文 prompt，新中式风格更佳）
 - **本地保存** — 文案、图片、元数据按日期+标题归档到本地目录
 
 ## Niche Coverage / 赛道覆盖
@@ -47,10 +47,11 @@ rn-skills/
 ## Prerequisites / 前置条件
 
 1. [Claude Code](https://claude.com/claude-code) CLI installed
-2. OpenAI API Key (for GPT Image generation)
+2. Alibaba Cloud DashScope API Key (for Tongyi Wanxiang image generation)
+   - Get it from [阿里云百炼平台](https://bailian.console.aliyun.com/)
 
 ```bash
-export OPENAI_API_KEY="sk-your-key-here"
+export DASHSCOPE_API_KEY="sk-your-key-here"
 ```
 
 ## Usage / 使用方式
@@ -93,11 +94,16 @@ output/2026-03-15_新中式叠穿/
 
 ## Cost Estimate / 成本估算
 
-| Item | Cost |
+Using Tongyi Wanxiang `wanx2.1-t2i-turbo` model:
+
+使用通义万相 `wanx2.1-t2i-turbo` 模型：
+
+| Item / 项目 | Cost / 成本 |
 |------|------|
-| GPT Image (~6 images/post) | ~$0.12–0.24 |
-| 2 posts/day | ~$0.24–0.48/day |
-| Monthly (60 posts) | ~$7.2–14.4/month |
+| turbo (~6 images/post) | ~¥0.24/post |
+| 2 posts/day | ~¥0.48/day |
+| Monthly (60 posts) | ~¥14.4/month (~$2) |
+| plus model (higher quality) | ~¥0.96/post, ~¥57.6/month (~$8) |
 
 ## License / 许可
 
